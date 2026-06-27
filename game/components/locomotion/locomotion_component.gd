@@ -9,6 +9,10 @@ class_name LocomotionComponent extends Node
 ## The body to move. Defaults to the parent if left unset.
 @export var body: CharacterBody2D
 
+## When true the body is pinned in place: velocity is zeroed and neither the
+## movers nor move_and_slide run, so gravity and movement intent are ignored.
+var frozen: bool = false
+
 var _movers: Array[MovementComponent] = []
 
 func _ready() -> void:
@@ -22,6 +26,9 @@ func _ready() -> void:
 	process_physics_priority = 100
 
 func _physics_process(delta: float) -> void:
+	if frozen:
+		body.velocity = Vector2.ZERO
+		return
 	for mover in _movers:
 		mover.apply(body, delta)
 	body.move_and_slide()

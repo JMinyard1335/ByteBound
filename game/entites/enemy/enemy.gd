@@ -5,6 +5,8 @@ class_name Enemy extends BaseCharacter
 ## its components and exposes shared sensory state for behavior leaves.
 
 @export var hitbox: Hitbox
+@export var locomotion: LocomotionComponent
+@export var behavior_tree: BeehaveTree
 @export var walk: WalkComponent
 @export var jump: JumpComponent
 
@@ -27,16 +29,29 @@ func _ready() -> void:
 	assert(jump, "Enemy: jump component not set")
 	assert(fov, "Enemy: FoV component not set")
 	assert(hitbox, "Enemy: hitbox component not set")
+	assert(locomotion, "Enemy: locomotion component not set")
+	assert(behavior_tree, "Enemy: behavior_tree not set")
 	fov.init(num_segments, sight_angle, sight_distance)
 	fov.sighted.connect(_on_sighted)
 	fov.lost.connect(_on_lost)
 	hitbox.init()
+	SignalHub.actors_freeze_requested.connect(_on_freeze_requested)
 	dir = movement_stats.starting_dir
 	return
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	fov.update(dir)
+	return
+
+## Freezes ([param frozen] true) or resumes the enemy. While frozen the body is pinned
+## in place and the [BeehaveTree] is disabled so the AI can neither move, see, nor kill.
+func set_movement_frozen(frozen: bool) -> void:
+	locomotion.frozen = frozen
+	behavior_tree.enabled = not frozen
+	if frozen:
+		velocity = Vector2.ZERO
+		walk.direction = 0.0
 	return
 
 func can_see_player() -> bool:
@@ -51,6 +66,10 @@ func request_search() -> void:
 
 func clear_search() -> void:
 	should_search = false
+	return
+
+func _on_freeze_requested(frozen: bool) -> void:
+	set_movement_frozen(frozen)
 	return
 
 func _on_sighted(body: Node2D) -> void:

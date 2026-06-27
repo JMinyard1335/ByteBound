@@ -14,6 +14,7 @@ const MIN_PUSH_FORCE: float = 1.0
 @export var camera : Camera2D
 
 @export_group("Movement components")
+@export var locomotion: LocomotionComponent
 @export var walk: WalkComponent
 @export var jump: JumpComponent
 @export var dash: DashComponent
@@ -23,6 +24,10 @@ const MIN_PUSH_FORCE: float = 1.0
 
 var has_key: bool = false
 var was_spoted : bool = false
+
+## True while all movement is frozen (death, door, cutscene). See
+## [method set_movement_frozen].
+var movement_frozen: bool = false
 
 #Variables to handle respawn
 var isDead = false
@@ -38,10 +43,12 @@ func _ready() -> void:
 	# Required nodes (sprite + movement_stats are asserted by BaseCharacter).
 	assert(input, "Player: input (InputComponent) not set")
 	assert(hand, "Player: hand not set")
+	assert(locomotion, "Player: locomotion (LocomotionComponent) not set")
 	assert(walk and jump and dash and gravity, "Player: movement components not wired")
 	hand.init(self)
 	# Set up the signals
 	SignalHub.key_collected.connect(_on_key_collected)
+	SignalHub.actors_freeze_requested.connect(_on_freeze_requested)
 	
 	# fov signals
 	#SignalHub.fov_entered.connect(_on_fov_entered)
@@ -80,7 +87,22 @@ func _on_death_timer_timeout():
 	SceneManager.reload()
 		
 	
+# Public API ------------------------------------------------------------------
+## Freezes ([param frozen] true) or resumes the player. While frozen, input is
+## ignored and the body is pinned in place (no movement, no gravity). Used by
+## death, door entry, and cutscenes.
+func set_movement_frozen(frozen: bool) -> void:
+	movement_frozen = frozen
+	input.enabled = not frozen
+	locomotion.frozen = frozen
+	if frozen:
+		velocity = Vector2.ZERO
+		walk.direction = 0.0
+
 # Signals --------------------------------------------------------------------
+func _on_freeze_requested(frozen: bool) -> void:
+	set_movement_frozen(frozen)
+
 func _on_key_collected() -> void:
 	has_key = true
 	AudioPool.play(CARD_COLLECT, global_position)
@@ -95,13 +117,10 @@ func handleDeath():
 		return #stop it from running the program multiple times if it dies
 		
 	isDead = true
-	
-	set_process_input(false) #stop taking player input on time of death
-	set_process(false)
-	set_physics_process(false)
-	
-	velocity = Vector2.ZERO
-	
+
+	set_movement_frozen(true) #stop all movement and input on death
+	set_physics_process(false) #also halt the player's own push loop / sprite flip
+
 	player_sprite.visible = false
 	
 	

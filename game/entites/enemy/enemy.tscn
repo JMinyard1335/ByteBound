@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c6fn63nghqfid" path="res://entites/enemy/enemy.gd" id="1_jji55"]
 [ext_resource type="Script" uid="uid://krgx50cxctd0" path="res://custom-resources/move_stats.gd" id="2_6e87y"]
-[ext_resource type="Texture2D" uid="uid://c8gexo4j6yuai" path="res://Assets/Sprites/Enemy_Spritesheet.png" id="3_7k8h2"]
+[ext_resource type="Texture2D" uid="uid://c8gexo4j6yuai" path="res://old-stuff-dont-use/Enemy_Spritesheet.png" id="3_7k8h2"]
 [ext_resource type="Script" uid="uid://yl4i15swrqs6" path="res://components/hit-box/hitbox.gd" id="3_w6xml"]
 [ext_resource type="Script" uid="uid://bb0t2ovl7wifo" path="res://addons/beehave/nodes/beehave_tree.gd" id="5_tree"]
 [ext_resource type="Script" uid="uid://cw22yurt5l74k" path="res://addons/beehave/nodes/composites/selector_reactive.gd" id="6_selector"]
@@ -77,11 +77,13 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Enemy" type="CharacterBody2D" unique_id=189295387 node_paths=PackedStringArray("hitbox", "walk", "jump", "fov", "sprite")]
+[node name="Enemy" type="CharacterBody2D" unique_id=189295387 node_paths=PackedStringArray("hitbox", "locomotion", "behavior_tree", "walk", "jump", "fov", "sprite")]
 collision_layer = 4
 collision_mask = 35
 script = ExtResource("1_jji55")
 hitbox = NodePath("Hitbox")
+locomotion = NodePath("Locomotion")
+behavior_tree = NodePath("BeehaveTree")
 walk = NodePath("Locomotion/Walk")
 jump = NodePath("Locomotion/Jump")
 fov = NodePath("FoV")

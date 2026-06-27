@@ -4,9 +4,11 @@
 [ext_resource type="PackedScene" uid="uid://bw0ew7stacm2" path="res://entites/player/player.tscn" id="1_dpdov"]
 [ext_resource type="PackedScene" uid="uid://b6io5qp6db3l" path="res://entites/objects/doors/exit-door/exit_door.tscn" id="2_bov5a"]
 [ext_resource type="PackedScene" uid="uid://biddtthbbkyfa" path="res://entites/objects/key/key.tscn" id="4_7o18d"]
-[ext_resource type="TileSet" uid="uid://tcqie33gwp1w" path="res://Assets/Terrain/TileSets/ShipTiles.tres" id="5_bgltd"]
+[ext_resource type="TileSet" uid="uid://h08khbw8dbim" path="res://Assets/tile-sets/ground.tres" id="5_un07w"]
 [ext_resource type="PackedScene" uid="uid://dducu000804tv" path="res://ui/game-overlay/game_overlay.tscn" id="6_ppcfl"]
 [ext_resource type="PackedScene" uid="uid://dds57a87tgua8" path="res://ui/pause-menu/pause.tscn" id="7_24df4"]
+[ext_resource type="TileSet" uid="uid://cv1knh18f8ls4" path="res://Assets/tile-sets/background.tres" id="12_84d7x"]
+[ext_resource type="TileSet" uid="uid://dmgldnhw1wbb4" path="res://Assets/tile-sets/farbackground.tres" id="20_tr841"]
 
 [sub_resource type="Environment" id="Environment_2s6sk"]
 background_mode = 3
@@ -16,12 +18,6 @@ tonemap_exposure = 0.2
 
 [node name="LevelTemplate" type="Node2D" unique_id=1807927384]
 script = ExtResource("1_74oc5")
-
-[node name="ExitDoor" parent="." unique_id=1703407053 instance=ExtResource("2_bov5a")]
-position = Vector2(499, 58)
-scale = Vector2(2, 2)
-collision_layer = 16
-collision_mask = 2
 
 [node name="UI" type="Node" parent="." unique_id=1404239472]
 
@@ -34,22 +30,21 @@ transform = Transform2D(1, 0, 0, 1, 5, 0)
 
 [node name="Terrain" type="Node" parent="." unique_id=633225797]
 
+[node name="FarParallax" type="Parallax2D" parent="Terrain" unique_id=100000001]
+scroll_scale = Vector2(0.2, 0.2)
+
+[node name="FarBackground" type="TileMapLayer" parent="Terrain/FarParallax" unique_id=1494314988]
+tile_set = ExtResource("20_tr841")
+
+[node name="NearParallax" type="Parallax2D" parent="Terrain" unique_id=100000002]
+scroll_scale = Vector2(0.5, 0.5)
+
+[node name="Background" type="TileMapLayer" parent="Terrain/NearParallax" unique_id=1439338542]
+tile_set = ExtResource("12_84d7x")
+
 [node name="GroundLayer" type="TileMapLayer" parent="Terrain" unique_id=1837942978]
 z_index = 1
-tile_set = ExtResource("5_bgltd")
-
-[node name="Walls" type="TileMapLayer" parent="Terrain" unique_id=1439338542]
-
-[node name="Enviroment" type="TileMapLayer" parent="Terrain" unique_id=1494314988]
-
-[node name="Background" type="ColorRect" parent="Terrain" unique_id=24827112]
-z_index = -5
-custom_minimum_size = Vector2(1000, 1000)
-offset_left = -1078.0
-offset_top = -122.0
-offset_right = 2227.0
-offset_bottom = 878.0
-color = Color(0.355314, 0.355314, 0.355314, 1)
+tile_set = ExtResource("5_un07w")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Terrain" unique_id=1685722091]
 environment = SubResource("Environment_2s6sk")
@@ -66,3 +61,9 @@ scale = Vector2(1.5, 1.5)
 position = Vector2(287, 89)
 
 [node name="LightOccluders" type="Node" parent="." unique_id=2047670028]
+
+[node name="ExitDoor" parent="." unique_id=1703407053 instance=ExtResource("2_bov5a")]
+position = Vector2(499, 58)
+scale = Vector2(2, 2)
+collision_layer = 16
+collision_mask = 2

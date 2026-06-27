@@ -10,10 +10,17 @@ const LASER_FIELD: AudioPoolStream = preload("res://Assets/Audio/pool-streams/la
 @export var receiver: ChannelReceiverComponent
 @export var sprite: AnimatedSprite2D
 @export var light: PointLight2D
+## When true, the first time this laser deactivates it plays a focus cutscene
+## (camera pans here, all actors frozen). Set false to disable the pan for this laser.
+@export var play_cutscene: bool = true
+## How long the cutscene holds on this laser after panning in.
+@export var cutscene_hold: float = 1.0
 
 var perma_open: bool = false
 # Set when reactivated so _process replays "Active" after the "Activate" anim.
 var just_activated: bool = false
+# True once this laser has played its deactivation cutscene (de-dup per level).
+var _cutscene_played: bool = false
 var _laser_field_player: Node
 
 func _ready() -> void:
@@ -49,6 +56,9 @@ func _deactivate() -> void:
 	hazard.active = false
 	sprite.play("Disabled")
 	light.enabled = false
+	if play_cutscene and not _cutscene_played:
+		_cutscene_played = true
+		CutsceneManager.play(self, cutscene_hold)
 
 func _activate() -> void:
 	hazard.active = true

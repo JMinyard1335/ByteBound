@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bw0ew7stacm2"]
 
-[ext_resource type="Texture2D" uid="uid://cx6grcbdlauol" path="res://Assets/Sprites/RobotPlayer.png" id="1_no2yp"]
+[ext_resource type="Texture2D" uid="uid://cx6grcbdlauol" path="res://old-stuff-dont-use/RobotPlayer.png" id="1_no2yp"]
 [ext_resource type="Script" uid="uid://bpu4bmomd6xst" path="res://entites/player/player.gd" id="1_wkyp0"]
 [ext_resource type="Resource" uid="uid://3y2cdy74dhsn" path="res://entites/player/player_move_stats.tres" id="2_crh5y"]
 [ext_resource type="Script" uid="uid://eibvlqug7l7x" path="res://addons/StateMachine/scripts/state_machine_2d.gd" id="3_kfjht"]
 [ext_resource type="Script" uid="uid://bch7e2haebkgc" path="res://entites/player/player-states/idle.gd" id="4_2w84y"]
-[ext_resource type="Texture2D" uid="uid://blrhqoy5rpvgq" path="res://Assets/Sprites/explosionSprite.png" id="4_uh4vi"]
+[ext_resource type="Texture2D" uid="uid://blrhqoy5rpvgq" path="res://old-stuff-dont-use/explosionSprite.png" id="4_uh4vi"]
 [ext_resource type="Script" uid="uid://b5rotlf0i0u4i" path="res://entites/player/player-states/move.gd" id="5_2oo8f"]
 [ext_resource type="Script" uid="uid://bti40apie83hh" path="res://entites/player/player-states/jump.gd" id="6_c3blf"]
 [ext_resource type="Script" uid="uid://d2wvgxoutetsq" path="res://entites/player/player-states/dash.gd" id="7_i2536"]
@@ -214,7 +214,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.863248, 0.0726496)
 
-[node name="Player" type="CharacterBody2D" unique_id=1356557048 node_paths=PackedStringArray("input", "hand", "camera", "walk", "jump", "dash", "gravity", "sprite") groups=["Player"]]
+[node name="Player" type="CharacterBody2D" unique_id=1356557048 node_paths=PackedStringArray("input", "hand", "camera", "locomotion", "walk", "jump", "dash", "gravity", "sprite") groups=["Player"]]
 scale = Vector2(0.5, 0.5)
 collision_layer = 2
 collision_mask = 127
@@ -222,6 +222,7 @@ script = ExtResource("1_wkyp0")
 input = NodePath("InputComponent")
 hand = NodePath("Hand")
 camera = NodePath("CameraFollow")
+locomotion = NodePath("Locomotion")
 walk = NodePath("Locomotion/Walk")
 jump = NodePath("Locomotion/Jump")
 dash = NodePath("Locomotion/Dash")
@@ -337,6 +338,7 @@ script = ExtResource("12_48m5d")
 body = NodePath("..")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1204571652]
+visible = false
 position = Vector2(0, 5.68434e-14)
 scale = Vector2(1.65625, 1.5625)
 energy = 1.4

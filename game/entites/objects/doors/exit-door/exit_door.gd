@@ -44,6 +44,9 @@ func _on_body_entered(body: Node2D) -> void:
 		# Check the state of the door
 		if _door_locked == false:
 			Debug.debug(self, "Player Entered the door, Door is %s" % _door_locked, false)
+			# Freeze the player while the door opens and the level transitions; the
+			# next scene loads a fresh, unfrozen player.
+			SignalHub.actors_freeze_requested.emit(true)
 			light.enabled = false
 			await _delay(_door_delay)
 			_door_sprite.play("Open")

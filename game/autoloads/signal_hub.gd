@@ -20,3 +20,14 @@ signal pressure_plate_activated(channel: Channel.Type)
 ## A pressure plate of [param channel] became inactive (stepped off).
 signal pressure_plate_deactivated(channel: Channel.Type)
 #endregion
+
+#region Player control / Cutscenes
+## Request all controllable actors freeze ([param frozen] true) or resume (false) all
+## movement. Raised by death, doors, and the [code]CutsceneManager[/code]; the [Player]
+## and every [Enemy] connect.
+signal actors_freeze_requested(frozen: bool)
+## A cutscene began. Other systems (HUD, audio) can react.
+signal cutscene_started
+## A cutscene ended.
+signal cutscene_ended
+#endregion

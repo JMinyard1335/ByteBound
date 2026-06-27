@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="ByteBound"
-run/main_scene="res://ui/main-menu/main_menu_control_node.tscn"
+run/main_scene="uid://dj33b6ynfouwy"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/icon.svg"
 
@@ -28,6 +28,7 @@ BeehaveGlobalMetrics="*res://addons/beehave/metrics/beehave_global_metrics.gd"
 BeehaveGlobalDebugger="*res://addons/beehave/debug/global_debugger.gd"
 AudioSettings="*res://autoloads/audio_settings.gd"
 AudioPool="*res://addons/audio-pool/autoloads/audio_pool.gd"
+CutsceneManager="*res://autoloads/cutscene_manager.gd"
 
 [display]
 
@@ -115,6 +116,8 @@ throw={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_s3tc_bptc=true
 textures/vram_compression/import_etc2_astc=true
 2d/snap/snap_2d_transforms_to_pixel=true
