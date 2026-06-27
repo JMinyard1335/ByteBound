@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b1yvnpispejbg"
-path="res://.godot/imported/ShipTilesFinal.png-58fdb8a69cbc3ee8893436b2b4440228.ctex"
+uid="uid://c8gexo4j6yuai"
+path="res://.godot/imported/Enemy_Spritesheet.png-ad78c9ea61686f0b6770754c829887ee.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://old-stuff-dont-use/Terrain/TileSets/ShipTilesFinal.png"
-dest_files=["res://.godot/imported/ShipTilesFinal.png-58fdb8a69cbc3ee8893436b2b4440228.ctex"]
+source_file="res://Assets/Sprites/Enemy_Spritesheet.png"
+dest_files=["res://.godot/imported/Enemy_Spritesheet.png-ad78c9ea61686f0b6770754c829887ee.ctex"]
 
 [params]
 

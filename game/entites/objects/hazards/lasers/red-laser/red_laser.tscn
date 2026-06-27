@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://1qa8vshk26o3"]
 
 [ext_resource type="Texture2D" uid="uid://cpqxip1tajkrg" path="res://Assets/Objects/Barriers/RedBeam/Disabled/RedBeamDisabled7.png" id="1_ajpgw"]
-[ext_resource type="Script" uid="uid://dal1kfytnu5pf" path="res://entites/objects/hazards/lazers/laser.gd" id="1_fw848"]
+[ext_resource type="Script" uid="uid://dal1kfytnu5pf" path="res://entites/objects/hazards/lasers/laser.gd" id="1_fw848"]
 [ext_resource type="Script" path="res://components/hazard/hazard_component.gd" id="haz_0"]
 [ext_resource type="Script" path="res://components/channel/channel_receiver_component.gd" id="rec_0"]
 [ext_resource type="Texture2D" uid="uid://crv5ejeq1muyn" path="res://Assets/Objects/Barriers/RedBeam/Disabled/RedBeamDisabled6.png" id="2_5xy4r"]
@@ -103,7 +103,7 @@ gradient = SubResource("Gradient_se3ua")
 fill_from = Vector2(0.5, 0)
 repeat = 2
 
-[node name="RedLazer" type="Area2D" node_paths=PackedStringArray("hazard", "receiver", "sprite", "light")]
+[node name="RedLaser" type="Area2D" node_paths=PackedStringArray("hazard", "receiver", "sprite", "light")]
 collision_layer = 8
 collision_mask = 2
 script = ExtResource("1_fw848")
