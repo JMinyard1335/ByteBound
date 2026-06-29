@@ -26,6 +26,12 @@ enum DIMENSION {
 ## Global vs 2D/3D positional.
 @export var dimension: DIMENSION = DIMENSION.D0
 
+## How far from the source the sound can still be heard: pixels for
+## [constant DIMENSION.D2], world units for [constant DIMENSION.D3]. Ignored for
+## global ([constant DIMENSION.D0]) sounds. For 3D, 0 means no cutoff (audible at
+## any distance).
+@export var max_distance: float = 2000.0
+
 ## The actual stream that gets played.
 @export var stream: AudioStream
 

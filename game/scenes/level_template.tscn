@@ -1,69 +1,41 @@
-[gd_scene format=3 uid="uid://dj33b6ynfouwy"]
+[gd_scene format=4 uid="uid://dj33b6ynfouwy"]
 
-[ext_resource type="Script" uid="uid://cnpticvfvia62" path="res://scenes/level_template.gd" id="1_74oc5"]
 [ext_resource type="PackedScene" uid="uid://bw0ew7stacm2" path="res://entites/player/player.tscn" id="1_dpdov"]
-[ext_resource type="PackedScene" uid="uid://b6io5qp6db3l" path="res://entites/objects/doors/exit-door/exit_door.tscn" id="2_bov5a"]
-[ext_resource type="PackedScene" uid="uid://biddtthbbkyfa" path="res://entites/objects/key/key.tscn" id="4_7o18d"]
-[ext_resource type="TileSet" uid="uid://h08khbw8dbim" path="res://Assets/tile-sets/ground.tres" id="5_un07w"]
+[ext_resource type="Script" uid="uid://dipq40d6swvf1" path="res://systems/terrain_manager.gd" id="3_amll8"]
 [ext_resource type="PackedScene" uid="uid://dducu000804tv" path="res://ui/game-overlay/game_overlay.tscn" id="6_ppcfl"]
 [ext_resource type="PackedScene" uid="uid://dds57a87tgua8" path="res://ui/pause-menu/pause.tscn" id="7_24df4"]
-[ext_resource type="TileSet" uid="uid://cv1knh18f8ls4" path="res://Assets/tile-sets/background.tres" id="12_84d7x"]
-[ext_resource type="TileSet" uid="uid://dmgldnhw1wbb4" path="res://Assets/tile-sets/farbackground.tres" id="20_tr841"]
 
-[sub_resource type="Environment" id="Environment_2s6sk"]
-background_mode = 3
-background_energy_multiplier = 0.4
-tonemap_mode = 3
-tonemap_exposure = 0.2
+[sub_resource type="GDScript" id="GDScript_iw5l3"]
 
 [node name="LevelTemplate" type="Node2D" unique_id=1807927384]
-script = ExtResource("1_74oc5")
+script = SubResource("GDScript_iw5l3")
 
-[node name="UI" type="Node" parent="." unique_id=1404239472]
+[node name="Terrain" type="Node2D" parent="." unique_id=525863855]
+script = ExtResource("3_amll8")
+
+[node name="DistantBackground" type="TileMapLayer" parent="Terrain" unique_id=561999055]
+unique_name_in_owner = true
+
+[node name="Background" type="TileMapLayer" parent="Terrain" unique_id=167036550]
+unique_name_in_owner = true
+
+[node name="Ground" type="TileMapLayer" parent="Terrain" unique_id=550595300]
+unique_name_in_owner = true
+tile_map_data = PackedByteArray("AAD7/woABQABAAEAAAD8/woABQABAAEAAAD9/woABQABAAEAAAD+/woABQABAAEAAAD//woABQABAAEAAAAAAAoABQABAAEAAAABAAoABQAFAAEAAAACAAoABQAFAAAAAAADAAoABQAFAAAAAAAEAAoABQAEAAAAAAAFAAoABQAEAAAAAAAGAAoABQAEAAEAAAAHAAoABQABAAEAAAAIAAoABQABAAEAAAAJAAoABQABAAEAAAAKAAoABQABAAEAAAAMAAoABQABAAEAAAALAAoABQABAAEAAAANAAoAAAAAAAAAAAAOAAoABQABAAAAAAAPAAoABQABAAEAAAAQAAoABQABAAEAAAARAAoABQABAAEAAAASAAoABQABAAEAAAATAAoABQABAAEAAAAUAAoABQABAAEAAAAVAAoABQABAAEAAAAWAAoABQABAAEAAAAXAAoABQACAAEAAAD6/woABQABAAEAAAD5/woABQABAAEAAAD4/woABQABAAEAAAD3/woABQABAAEAAAD2/woABQABAAEAAAD1/woABQABAAEAAAD0/woABQABAAEAAADz/woABQABAAEAAADy/woABQAAAAEAAADy/wsABQAAAAMAAADz/wsABQABAAMAAAD0/wsABQABAAMAAAD1/wsABQABAAMAAAD2/wsABQABAAMAAAD3/wsABQABAAMAAAD4/wsABQABAAMAAAD5/wsABQABAAMAAAD6/wsABQABAAMAAAD7/wsABQABAAMAAAD8/wsABQABAAMAAAD9/wsABQABAAMAAAD+/wsABQABAAMAAAABAAsABQABAAMAAAAAAAsABQABAAMAAAD//wsABQABAAMAAAACAAsABQABAAMAAAADAAsABQABAAMAAAAEAAsABQABAAMAAAAFAAsABQABAAMAAAAGAAsABQABAAMAAAAHAAsABQABAAMAAAAIAAsABQABAAMAAAAKAAsABAAAAAAAAAALAAsAAwAAAAAAAAAMAAsAAgAAAAAAAAANAAsAAQAAAAAAAAAOAAsABQABAAIAAAAPAAsABQABAAIAAAAQAAsABQABAAIAAAARAAsABQABAAIAAAASAAsABQABAAIAAAATAAsABQABAAIAAAAUAAsABQAEAAAAAAAVAAsABQABAAMAAAAWAAsABQABAAMAAAAXAAsABQACAAMAAAAKAAwABQABAAMAAAALAAwABQABAAMAAAAMAAwABQABAAMAAAANAAwABQABAAMAAAAOAAwABQABAAMAAAAPAAwABQABAAMAAAAQAAwABQABAAMAAAARAAwABQABAAMAAAASAAwABQABAAMAAAATAAwABQABAAMAAAAUAAwABQACAAMAAAAJAAwABQAAAAMAAAAJAAsABQAEAAAAAAABAAkABgAAAAAAAAACAAgABgAAAAAAAAADAAgABgAFAAEAAAAEAAgABgAFAAEAAAAFAAgABgABAAAAAAAGAAkABgABAAAAAAACAAkABgAFAAIAAAADAAkABgACAAIAAAAEAAkABgACAAIAAAAFAAkABgAEAAIAAAAJAAYABgACAAAAAAAKAAYABgADAAAAAAALAAYABgAEAAAAAAACAAMABgACAAAAAAADAAMABgADAAAAAAAEAAMABgAEAAAAAAD//wMABgACAAAAAAAAAAMABgADAAAAAAABAAMABgAEAAAAAAD+/wIABgABAAAAAAD+/wMABgADAAAAAAD9/wIABQABAAAAAAD8/wIABQABAAEAAAD7/wIABQABAAEAAAD6/wIABQABAAEAAAD9/wMABgADAAAAAAD8/wMABgADAAAAAAD7/wMABgADAAAAAAD6/wMABgACAAAAAAA=")
+
+[node name="Enviroment" type="Node2D" parent="." unique_id=54102886]
+
+[node name="Player" parent="." unique_id=1356557048 instance=ExtResource("1_dpdov")]
+position = Vector2(0, 1)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1282453702]
+visible = false
 
 [node name="PauseMenu" parent="UI" unique_id=176249299 instance=ExtResource("7_24df4")]
 physics_interpolation_mode = 1
+visible = false
 
 [node name="CanvasLayer" parent="UI" unique_id=1099492851 instance=ExtResource("6_ppcfl")]
+visible = false
 offset = Vector2(5, 0)
 transform = Transform2D(1, 0, 0, 1, 5, 0)
-
-[node name="Terrain" type="Node" parent="." unique_id=633225797]
-
-[node name="FarParallax" type="Parallax2D" parent="Terrain" unique_id=100000001]
-scroll_scale = Vector2(0.2, 0.2)
-
-[node name="FarBackground" type="TileMapLayer" parent="Terrain/FarParallax" unique_id=1494314988]
-tile_set = ExtResource("20_tr841")
-
-[node name="NearParallax" type="Parallax2D" parent="Terrain" unique_id=100000002]
-scroll_scale = Vector2(0.5, 0.5)
-
-[node name="Background" type="TileMapLayer" parent="Terrain/NearParallax" unique_id=1439338542]
-tile_set = ExtResource("12_84d7x")
-
-[node name="GroundLayer" type="TileMapLayer" parent="Terrain" unique_id=1837942978]
-z_index = 1
-tile_set = ExtResource("5_un07w")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Terrain" unique_id=1685722091]
-environment = SubResource("Environment_2s6sk")
-
-[node name="Characters" type="Node" parent="." unique_id=2132456402]
-
-[node name="Player" parent="Characters" unique_id=2014889484 instance=ExtResource("1_dpdov")]
-position = Vector2(49, 36)
-scale = Vector2(1.5, 1.5)
-
-[node name="Collectables" type="Node" parent="." unique_id=1376331137]
-
-[node name="Key" parent="Collectables" unique_id=981077533 instance=ExtResource("4_7o18d")]
-position = Vector2(287, 89)
-
-[node name="LightOccluders" type="Node" parent="." unique_id=2047670028]
-
-[node name="ExitDoor" parent="." unique_id=1703407053 instance=ExtResource("2_bov5a")]
-position = Vector2(499, 58)
-scale = Vector2(2, 2)
-collision_layer = 16
-collision_mask = 2

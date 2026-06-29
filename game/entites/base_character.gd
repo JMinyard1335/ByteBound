@@ -9,7 +9,9 @@ class_name BaseCharacter extends ICharacter
 @export var sprite: AnimatedSprite2D
 @export var movement_stats: MoveStats
 
-## Facing/movement direction (-1 left, 1 right). Updated by input or AI.
+## Facing direction: -1 left, 1 right, 0 = unset. Updated by input or AI.[br]
+## When 0 the flip is left untouched here, so a character can manage its own
+## facing instead (the [Player] flips through its [AnimationComponent]).
 var dir: int
 
 func _ready() -> void:
@@ -17,7 +19,8 @@ func _ready() -> void:
 	assert(movement_stats, "BaseCharacter: movement_stats (MoveStats) is not set")
 
 func _physics_process(_delta: float) -> void:
-	sprite.flip_h = dir < 0
+	if dir != 0:
+		sprite.flip_h = dir < 0
 
 func get_move_stats() -> MoveStats:
 	return movement_stats

@@ -16,8 +16,8 @@ func process_input(_event: InputEvent) -> FSMState:
 	return null
 
 func process_physics(_delta: float) -> FSMState:
-	walk.direction = input.input_horizontal
-	gravity.fast_fall = get_fastfall_input()
+	motion.move(input.input_horizontal)
+	motion.set_fast_fall(get_fastfall_input())
 	if not player.is_on_floor() and player.velocity.y > 0:
 		return fall_state
 	if player.is_on_floor() and not get_movement_input() and player.velocity.x == 0:

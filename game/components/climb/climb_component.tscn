@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8t3xq1ld9pwn"]
+
+[ext_resource type="Script" uid="uid://cqk7n2vbr8m3a" path="res://components/climb/climb_component.gd" id="1_climb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sensor"]
+size = Vector2(14, 30)
+
+[node name="ClimbComponent" type="Node" node_paths=PackedStringArray("sensor")]
+script = ExtResource("1_climb")
+sensor = NodePath("ClimbSensor")
+climb_mask = 256
+
+[node name="ClimbSensor" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 512
+monitorable = false
+
+[node name="ZoneShape" type="CollisionShape2D" parent="ClimbSensor"]
+position = Vector2(3, -13)
+shape = SubResource("RectangleShape2D_sensor")

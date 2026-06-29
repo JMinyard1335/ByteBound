@@ -9,11 +9,11 @@ class_name PlayerIdle extends PlayerState
 
 func enter() -> void:
 	super()
-	walk.direction = 0.0
-	player.velocity.x = 0.0
+	motion.stop()
+	player.anim.handle_horizontal_flip(input.input_horizontal)
 
 func process_input(_event: InputEvent) -> FSMState:
-	if player.is_on_floor() and jump.can_jump():
+	if player.is_on_floor() and motion.can_jump():
 		if get_jump_input():
 			return jump_state
 		if get_movement_input():

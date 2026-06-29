@@ -11,10 +11,11 @@ var _direction: float
 func enter() -> void:
 	super()
 	_direction = _facing()
-	dash.dash(_direction)
+	motion.dash(_direction)
+
 
 func process_physics(_delta: float) -> FSMState:
-	if dash.is_dashing:
+	if motion.is_dashing():
 		return null
 	if not player.is_on_floor() and player.velocity.y > 0:
 		return fall_state

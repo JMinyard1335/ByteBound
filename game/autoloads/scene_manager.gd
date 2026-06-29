@@ -6,6 +6,11 @@ var current_scene_resource: PackedScene
 var current_level_index: int = -1
 var current_level: Resource
 
+## Portal id the next loaded level should place the player at. Empty means the
+## level uses its own default player spawn. Set via [method change_to] and read
+## once (and cleared) via [method consume_spawn_id].
+var pending_spawn_id: StringName = &""
+
 var _campaign_levels: Array[Resource] = []
 var _completion_scene: PackedScene
 
@@ -18,15 +23,23 @@ func _ready() -> void:
 #endregion
 
 #region Public API
-func change_to(scene: PackedScene) -> void:
+func change_to(scene: PackedScene, spawn_id: StringName = &"") -> void:
 	if scene == null:
 		push_error("SceneManager: scene not set.")
 		return
 
 	reset_pause()
 	current_scene_resource = scene
+	pending_spawn_id = spawn_id
 	_deferred_change_to.call_deferred(scene)
 	return
+
+## Returns the pending portal spawn id and clears it, so the next level load
+## starts from a clean slate. Returns [code]&""[/code] when nothing is pending.
+func consume_spawn_id() -> StringName:
+	var id: StringName = pending_spawn_id
+	pending_spawn_id = &""
+	return id
 
 func start_campaign(levels: Array, completion_scene: PackedScene, start_index: int = 0) -> void:
 	if levels.is_empty():

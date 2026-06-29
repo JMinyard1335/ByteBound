@@ -1,0 +1,27 @@
+[gd_resource type="TileSet" format=3 uid="uid://cjp11vk1bwrhc"]
+
+[ext_resource type="Texture2D" uid="uid://dfbteqbto4hif" path="res://Assets/tile-sets/tiles/Industrial Tileset - Plus Pack 32p/3_Far_Background_Tile.png" id="1_osptx"]
+[ext_resource type="Texture2D" uid="uid://bbotus02i4coq" path="res://Assets/tile-sets/tiles/Industrial Tileset - Plus Pack 32p/3_Industrial_Tileset_1_FarBackground.png" id="2_psukb"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_txfq2"]
+texture = ExtResource("1_osptx")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ikkfl"]
+texture = ExtResource("2_psukb")
+texture_region_size = Vector2i(256, 256)
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+2:1/0 = 0
+1:1/0 = 0
+0:1/0 = 0
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+
+[resource]
+tile_size = Vector2i(256, 256)
+sources/4 = SubResource("TileSetAtlasSource_txfq2")
+sources/5 = SubResource("TileSetAtlasSource_ikkfl")

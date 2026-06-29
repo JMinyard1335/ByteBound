@@ -1,137 +1,66 @@
 class_name Player extends BaseCharacter
 ## The player-controlled character.
 ##
-## Extends [BaseCharacter] (sprite, movement stats, facing) and adds input, the
-## throw hand, the follow camera, object pushing, and death/respawn. Movement is
-## driven by the child FSM ([FSMachine2D]).
+## Extends [BaseCharacter] (sprite, movement stats, facing) and wires the
+## player's components: a [HealthComponent], the [LocomotionComponent] that owns
+## all movement, and the [InputComponent]. The child FSM ([FSMachine2D]) reads
+## input and drives the body through [member motion]'s intent API.
 
-const CARD_COLLECT: AudioPoolStream = preload("res://Assets/Audio/pool-streams/cardCollect.tres")
-const PUSH_FORCE: float = 15.0
-const MIN_PUSH_FORCE: float = 1.0
 
+@export_category("Components")
+## Tracks damage and announces death when health is depleted.
+@export var health: HealthComponent
+## Owns the body's movement; the sole mover/slider. States drive it via its API.
+@export var motion: LocomotionComponent
+## Polls and exposes the player's input each frame.
 @export var input: InputComponent
-@export var hand : HolderComponent
-@export var camera : Camera2D
+## Handles the players animations
+@export var anim: AnimationComponent
+## The finite State machine that controlls the players state
+@export var fsm: FSMachine2D
 
-@export_group("Movement components")
-@export var locomotion: LocomotionComponent
-@export var walk: WalkComponent
-@export var jump: JumpComponent
-@export var dash: DashComponent
-@export var gravity: GravityComponent
-@onready var player_sprite: AnimatedSprite2D = $PlayerSprite
-@onready var explosion_sprite: AnimatedSprite2D = $ExplosionSprite
 
-var has_key: bool = false
-var was_spoted : bool = false
 
-## True while all movement is frozen (death, door, cutscene). See
-## [method set_movement_frozen].
-var movement_frozen: bool = false
-
-#Variables to handle respawn
-var isDead = false
-var deathTimer = null
-
-# Builtins --------------------------------------------------------------------
+#region Engine Methods
 func _ready() -> void:
 	super._ready()
-	# Make sure the player is in the player group
-	if !self.is_in_group("Player"):
-		self.add_to_group("Player")
-		
-	# Required nodes (sprite + movement_stats are asserted by BaseCharacter).
-	assert(input, "Player: input (InputComponent) not set")
-	assert(hand, "Player: hand not set")
-	assert(locomotion, "Player: locomotion (LocomotionComponent) not set")
-	assert(walk and jump and dash and gravity, "Player: movement components not wired")
-	hand.init(self)
-	# Set up the signals
-	SignalHub.key_collected.connect(_on_key_collected)
-	SignalHub.actors_freeze_requested.connect(_on_freeze_requested)
+	assert(health, "Player: health component not set")
+	assert(motion, "Player: motion (LocomotionComponent) not set")
+	assert(input, "Player: input component not set")
+	assert(anim, "Player: animation component not set")
+	assert(fsm, "Player: fsm not set")
 	
-	# fov signals
-	#SignalHub.fov_entered.connect(_on_fov_entered)
+	health.health_depleated.connect(_on_death)
+	fsm.init(self)
+
+
+func _process(_delta: float) -> void:
+	# Single owner of the player's facing: flip toward actual horizontal motion.
+	# The dash's locked velocity carries through here too, so the states never
+	# touch the sprite. At velocity.x == 0 the flip is held (last facing kept).
+	anim.handle_horizontal_flip(velocity.x)
+#endregion
+
+
+#region Public API
+## Deals [param amount] of damage to the player. Death is handled automatically
+## when [member health] is depleted (via [signal HealthComponent.health_depleated]).
+func hurt(amount: int) -> void:
+	health.take_damage(amount)
+
+
+## Instantly kills the player, routing through the normal death flow so listeners
+## of [signal HealthComponent.health_depleated] still fire.
+func kill() -> void:
+	health.take_damage(health.health)
+#endregion
+
+
+func _on_death() -> void:
+	if not fsm.state_list.has("Death"):
+		return
 	
-	# The key and throwables manage their own hitboxes and raise their own signals.
-	
-	# setup death timers and states to handle respawn
-	deathTimer = Timer.new()
-	deathTimer.one_shot = true #we only want the timer to run once for every death
-	deathTimer.wait_time = 1.0 #Delay in respawn
-	deathTimer.timeout.connect(_on_death_timer_timeout) #connect the functions
-	add_child(deathTimer) #create the timer child object
-	
-	
-func _physics_process(delta: float) -> void:
-	super._physics_process(delta)
-
-	#Uncomment to enable pushing ridged bodys
-	for i in get_slide_collision_count():
-		var c = get_slide_collision(i)
-		if c.get_collider() is RigidBody2D and c.get_collider().has_method("apply_central_impulse"):
-			var ref_speed = movement_stats.ground_speed if is_on_floor() else movement_stats.air_speed
-			var push_force = (PUSH_FORCE * velocity.length() / ref_speed) + MIN_PUSH_FORCE
-			c.get_collider().apply_central_impulse(-c.get_normal() * push_force)
-
-	
-
-func _input(_event: InputEvent) -> void:
-	hand.update_direction(input)
-	update_dir()
-
-		
-
-func _on_death_timer_timeout():
-	#When timer runs out, we reload the scene
-	SceneManager.reload()
-		
-	
-# Public API ------------------------------------------------------------------
-## Freezes ([param frozen] true) or resumes the player. While frozen, input is
-## ignored and the body is pinned in place (no movement, no gravity). Used by
-## death, door entry, and cutscenes.
-func set_movement_frozen(frozen: bool) -> void:
-	movement_frozen = frozen
-	input.enabled = not frozen
-	locomotion.frozen = frozen
-	if frozen:
-		velocity = Vector2.ZERO
-		walk.direction = 0.0
-
-# Signals --------------------------------------------------------------------
-func _on_freeze_requested(frozen: bool) -> void:
-	set_movement_frozen(frozen)
-
-func _on_key_collected() -> void:
-	has_key = true
-	AudioPool.play(CARD_COLLECT, global_position)
-	Debug.debug(self, "Player collected the key", false)
-
-# Death by fov is already handled by the fov component, so the player does
-# not connect to fov_entered itself.
-
-			
-func handleDeath():
-	if isDead:
-		return #stop it from running the program multiple times if it dies
-		
-	isDead = true
-
-	set_movement_frozen(true) #stop all movement and input on death
-	set_physics_process(false) #also halt the player's own push loop / sprite flip
-
-	player_sprite.visible = false
+	# Change to the death state if it exists
+	fsm.change_state(fsm.state_list.get("Death"))
 	
 	
-	explosion_sprite.visible = true
-	deathTimer.start()
-	explosion_sprite.play("explode")
-	
-
-# helpers
-func update_dir():
-	if input.get_left():
-		dir = -1
-	if input.get_right():
-		dir = 1

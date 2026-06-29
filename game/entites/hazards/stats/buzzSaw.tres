@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HazardStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://custom-resources/hazard_stats.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+lethal = true
+mode = 1
+idle_time = 1.0
+telegraph_time = 1.0
+active_time = 3.0

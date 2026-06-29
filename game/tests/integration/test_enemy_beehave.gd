@@ -27,7 +27,7 @@ class FakePlayer:
 		add_to_group("Player")
 		return
 
-	func handleDeath() -> void:
+	func kill() -> void:
 		died = true
 		return
 

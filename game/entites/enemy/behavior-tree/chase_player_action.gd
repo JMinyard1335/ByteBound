@@ -73,7 +73,7 @@ func _try_kill_player(body: Object) -> bool:
 	if not body is Node:
 		return false
 	var node: Node = body as Node
-	if not node.is_in_group("Player") or not node.has_method("handleDeath"):
+	if not node.is_in_group("Player") or not node.has_method("kill"):
 		return false
-	node.call("handleDeath")
+	node.call("kill")
 	return true
