@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AudioPoolStream" format=3 uid="uid://b07lewf664b5b"]
+
+[ext_resource type="Script" uid="uid://dxvohn2w3oets" path="res://addons/audio-pool/custom-resources/audio_pool_effect.gd" id="1_g255g"]
+[ext_resource type="Script" uid="uid://cuvp6mktwb38w" path="res://addons/audio-pool/custom-resources/audio_pool_stream.gd" id="2_mwp0i"]
+[ext_resource type="AudioStream" uid="uid://up2s4ja0yw6n" path="res://entites/portals/effects/sounds/Portal Sound Loop (2).wav" id="3_g255g"]
+
+[resource]
+script = ExtResource("2_mwp0i")
+stream_name = &"ActivePortal"
+audio_bus = "SFX"
+one_shot = false
+dimension = 1
+max_distance = 600.0
+stream = ExtResource("3_g255g")
+volume = 60
+metadata/_custom_type_script = "uid://cuvp6mktwb38w"

@@ -7,3 +7,6 @@ func _create_player() -> Node:
 func _apply_position(player: Node, at: Variant) -> void:
 	if at is Vector3:
 		(player as AudioStreamPlayer3D).global_position = at
+
+func _apply_attenuation(player: Node, stream: AudioPoolStream) -> void:
+	(player as AudioStreamPlayer3D).max_distance = stream.max_distance

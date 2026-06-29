@@ -10,19 +10,19 @@ const PLAYER_JUMP: AudioPoolStream = preload("res://Assets/Audio/pool-streams/pl
 
 func enter() -> void:
 	super()
-	jump.jump(player)
+	motion.jump()
 	AudioPool.play(PLAYER_JUMP, player.global_position)
 
 func process_input(_event: InputEvent) -> FSMState:
-	if jump.can_jump() and get_jump_input():
+	if motion.can_jump() and get_jump_input():
 		return jump_state
 	if check_dash_conditions():
 		return dash_state
 	return null
 
 func process_physics(_delta: float) -> FSMState:
-	walk.direction = input.input_horizontal
-	gravity.fast_fall = get_fastfall_input()
+	motion.move(input.input_horizontal)
+	motion.set_fast_fall(get_fastfall_input())
 	if player.velocity.y > 0:
 		return fall_state
 	return null

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://b07rsguiwjhjd"]
+
+[ext_resource type="Script" uid="uid://biyrckcem0i53" path="res://components/locomotion/locomotion_component.gd" id="1_e60o5"]
+[ext_resource type="Script" uid="uid://c32yt13twoygo" path="res://components/movement/gravity_component.gd" id="2_17yjj"]
+[ext_resource type="Script" uid="uid://cqaq7nvdoc6ks" path="res://components/movement/walk_component.gd" id="3_5we8r"]
+[ext_resource type="Resource" uid="uid://3y2cdy74dhsn" path="res://entites/player/player_move_stats.tres" id="4_s7mie"]
+[ext_resource type="Script" uid="uid://co0sh26hvd7gk" path="res://components/movement/jump_component.gd" id="5_kntyo"]
+[ext_resource type="Script" uid="uid://bnw3x6u70l58m" path="res://components/movement/dash_component.gd" id="6_g4jal"]
+
+[node name="Locomotion" type="Node" unique_id=31794508]
+script = ExtResource("1_e60o5")
+
+[node name="Gravity" type="Node" parent="." unique_id=704862417]
+unique_name_in_owner = true
+script = ExtResource("2_17yjj")
+
+[node name="Walk" type="Node" parent="." unique_id=60027789]
+unique_name_in_owner = true
+script = ExtResource("3_5we8r")
+stats = ExtResource("4_s7mie")
+
+[node name="Jump" type="Node" parent="." unique_id=1561945763]
+unique_name_in_owner = true
+script = ExtResource("5_kntyo")
+stats = ExtResource("4_s7mie")
+
+[node name="Dash" type="Node" parent="." unique_id=1079329650]
+unique_name_in_owner = true
+script = ExtResource("6_g4jal")
+stats = ExtResource("4_s7mie")

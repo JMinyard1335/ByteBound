@@ -13,8 +13,17 @@ class_name AnimationComponent extends Node
 
 @export_category("Nodes")
 ## Attach the sprite of the parent node to this refrence.
-@export  var sprite : AnimatedSprite2D
+@export var sprite : AnimatedSprite2D
 
+@export_category("Animations")
+@export var walk_anim: StringName = &""
+@export var jump_anim: StringName = &""
+@export var dash_anim: StringName = &""
+@export var idle_anim: StringName = &""
+@export var death_anim: StringName = &""
+@export var fall_anim: StringName = &""
+
+ 
 ## Flips the animation based on the direction that was passed in.
 ## in a 2D game we only worry about [member AnimatedSprite2D.flip_h] 
 func handle_horizontal_flip(move_direction : float):
@@ -29,18 +38,18 @@ func handle_move_animation(move_direction : float) -> void:
 	handle_horizontal_flip(move_direction)
 	
 	if move_direction != 0:
-		sprite.play("Move")
+		sprite.play(walk_anim)
 	else:
-		sprite.play("Idle")
+		sprite.play(idle_anim)
 
 ## This function handles changing the animation based on the velocity.y movement
 ## Call this function in the [method Node2D._process_physics]
 func handle_jump_animation(is_jumping : bool, is_falling : bool):
 	if is_jumping:
-		sprite.play("Jump")
+		sprite.play(jump_anim)
 	if is_falling:
-		sprite.play("Fall")
+		sprite.play(fall_anim)
 
 ## Plays a death animation. Call whenever a game_object should die
 func play_death_animation() -> void:
-	sprite.play("Death")
+	sprite.play(death_anim)

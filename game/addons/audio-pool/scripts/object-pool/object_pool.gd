@@ -14,3 +14,9 @@ extends RefCounted
 
 ## Stops and frees every player in the pool.
 @abstract func clear() -> void
+
+## The generation token of [param player], or 0 if it is not currently active.
+@abstract func token_of(player: Node) -> int
+
+## Repositions an active [param player].
+@abstract func move(player: Node, at: Variant) -> void

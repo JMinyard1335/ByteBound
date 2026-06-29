@@ -1,86 +1,88 @@
-class_name Enemy extends BaseCharacter
-## AI-controlled hazard that patrols, idles, and chases the player on sight.
+@tool
+class_name Enemy
+extends BaseCharacter
+## Shared base for every AI enemy.
 ##
-## Movement and decisions are driven by the child [BeehaveTree]. This node wires
-## its components and exposes shared sensory state for behavior leaves.
+## Every enemy requires a child [Path2D] that describes its patrol route. The
+## curve's points are captured into fixed world-space waypoints at spawn (the
+## path itself rides along with the body, so it can't be followed live). A
+## [PatrolPathAction] in the child [BeehaveTree] walks the body between those
+## waypoints by calling the patrol seam below.
+##
+## The base seam ([method patrol_steer_to], [method patrol_has_reached],
+## [method patrol_stop]) drives a ground walker through its [LocomotionComponent].
+## Flying enemies ([SentryDrone]) override it to move freely in 2D.
 
-@export var hitbox: Hitbox
+## Owns the body's movement and is its sole mover/slider. Controllers (the
+## behavior tree) set intent through this component, never sliding the body.
 @export var locomotion: LocomotionComponent
-@export var behavior_tree: BeehaveTree
-@export var walk: WalkComponent
-@export var jump: JumpComponent
 
-@export_category("Field of View")
-@export var fov: FoV
-@export var num_segments: int
-@export var sight_distance: float
-@export var sight_angle: float
+## The patrol route, captured from the child [Path2D] at spawn. World space.
+var patrol_waypoints: PackedVector2Array = PackedVector2Array()
 
-var player_in_sight: bool
-var should_search: bool
-var home_position: Vector2
-var original_color: Color = Color(1, 0.270588, 0, 1)
-var player: CharacterBody2D
+var _patrol_path: Path2D
 
+#region Engine Methods
 func _ready() -> void:
-	super._ready()
-	home_position = global_position
-	assert(walk, "Enemy: walk component not set")
-	assert(jump, "Enemy: jump component not set")
-	assert(fov, "Enemy: FoV component not set")
-	assert(hitbox, "Enemy: hitbox component not set")
-	assert(locomotion, "Enemy: locomotion component not set")
-	assert(behavior_tree, "Enemy: behavior_tree not set")
-	fov.init(num_segments, sight_angle, sight_distance)
-	fov.sighted.connect(_on_sighted)
-	fov.lost.connect(_on_lost)
-	hitbox.init()
-	SignalHub.actors_freeze_requested.connect(_on_freeze_requested)
-	dir = movement_stats.starting_dir
-	return
-
-func _physics_process(delta: float) -> void:
-	super._physics_process(delta)
-	fov.update(dir)
-	return
-
-## Freezes ([param frozen] true) or resumes the enemy. While frozen the body is pinned
-## in place and the [BeehaveTree] is disabled so the AI can neither move, see, nor kill.
-func set_movement_frozen(frozen: bool) -> void:
-	locomotion.frozen = frozen
-	behavior_tree.enabled = not frozen
-	if frozen:
-		velocity = Vector2.ZERO
-		walk.direction = 0.0
-	return
-
-func can_see_player() -> bool:
-	return player_in_sight and is_instance_valid(player)
-
-func is_home_reached(distance: float) -> bool:
-	return global_position.distance_to(home_position) <= distance
-
-func request_search() -> void:
-	should_search = true
-	return
-
-func clear_search() -> void:
-	should_search = false
-	return
-
-func _on_freeze_requested(frozen: bool) -> void:
-	set_movement_frozen(frozen)
-	return
-
-func _on_sighted(body: Node2D) -> void:
-	player_in_sight = true
-	player = body as CharacterBody2D
-	should_search = false
-	return
-
-func _on_lost(body: Node2D) -> void:
-	if body != player:
+	if Engine.is_editor_hint():
 		return
-	player_in_sight = false
-	request_search()
-	return
+	super._ready()
+	assert(locomotion, "Enemy: locomotion (LocomotionComponent) not set")
+	_patrol_path = _find_patrol_path()
+	assert(_patrol_path, "Enemy: a child Path2D is required to define the patrol route")
+	_capture_waypoints()
+
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings: PackedStringArray = []
+	var path: Path2D = _find_patrol_path()
+	if path == null:
+		warnings.append("An enemy needs a child Path2D to define its patrol route.")
+	elif path.curve == null or path.curve.point_count < 2:
+		warnings.append("The patrol Path2D needs at least 2 points.")
+	return warnings
+#endregion
+
+#region Public API
+## The patrol route in world space, captured from the child [Path2D] at spawn.
+func get_patrol_waypoints() -> PackedVector2Array:
+	return patrol_waypoints
+
+
+## Drives one frame of movement toward [param target] (world space). The base
+## walks horizontally toward the target's x; flyers override for full 2D motion.
+func patrol_steer_to(target: Vector2) -> void:
+	var direction: float = signf(target.x - global_position.x)
+	if direction != 0.0:
+		dir = int(direction)
+	locomotion.move(direction)
+
+
+## True when [param target] is within [param tol] of this enemy. The base uses
+## horizontal distance (gravity handles the vertical); flyers override for 2D.
+func patrol_has_reached(target: Vector2, tol: float) -> bool:
+	return absf(target.x - global_position.x) <= tol
+
+
+## Cancels this frame's patrol movement intent.
+func patrol_stop() -> void:
+	locomotion.stop()
+#endregion
+
+#region Private Helpers
+func _find_patrol_path() -> Path2D:
+	for child in get_children():
+		if child is Path2D:
+			return child as Path2D
+	return null
+
+
+func _capture_waypoints() -> void:
+	patrol_waypoints = PackedVector2Array()
+	var curve: Curve2D = _patrol_path.curve
+	if curve == null or curve.point_count == 0:
+		push_warning("%s: patrol Path2D has no points." % name)
+		return
+	for i in range(curve.point_count):
+		patrol_waypoints.append(_patrol_path.to_global(curve.get_point_position(i)))
+#endregion

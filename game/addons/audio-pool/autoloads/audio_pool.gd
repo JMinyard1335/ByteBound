@@ -34,26 +34,63 @@ func _init_pool(pool: BaseAudioPool, container_name: String) -> void:
 	return
 
 ## Plays [param stream]. [param at] is a [Vector2] for D2, [Vector3] for D3, and
-## ignored for D0. Returns the player — keep it as a handle to [method stop] a
-## looping sound.
-func play(stream: AudioPoolStream, at: Variant = Vector2.ZERO) -> Node:
-	return _play(stream, at, false)
+## ignored for D0. Returns an [AudioHandle] to query or [method AudioHandle.stop]
+## the sound (looping sounds must be stopped through it).
+func play(stream: AudioPoolStream, at: Variant = Vector2.ZERO) -> AudioHandle:
+	return _make_handle(_play(stream, at, false), stream)
 
 ## Plays [param stream] only if another stream with the same
-## [member AudioPoolStream.stream_name] is not already active.
-func play_unique(stream: AudioPoolStream, at: Variant = Vector2.ZERO) -> Node:
+## [member AudioPoolStream.stream_name] is not already active. Returns an
+## [AudioHandle] for the playing (or already-playing) sound.
+func play_unique(stream: AudioPoolStream, at: Variant = Vector2.ZERO) -> AudioHandle:
 	if stream == null:
 		push_warning("AudioPool: cannot play a null stream")
-		return null
+		return AudioHandle.new()
 
 	var key: StringName = stream.stream_name
 	if key != &"" and _unique_players.has(key):
 		var current_player: Node = _unique_players[key]
 		if is_instance_valid(current_player):
-			return current_player
+			return _make_handle(current_player, stream)
 		_unique_players.erase(key)
-		return _play(stream, at, true)
-	return _play(stream, at, key != &"")
+		return _make_handle(_play(stream, at, true), stream)
+	return _make_handle(_play(stream, at, key != &""), stream)
+
+
+# Wraps a player in an AudioHandle. Returns an invalid handle if play failed.
+func _make_handle(player: Node, stream: AudioPoolStream) -> AudioHandle:
+	if player == null or not _owner.has(player):
+		return AudioHandle.new()
+	return AudioHandle.create(player, _owner[player].token_of(player), stream)
+
+
+## True if [param player] is still the same acquisition identified by [param token].
+## Backs [method AudioHandle.is_valid].
+func is_active(player: Node, token: int) -> bool:
+	return is_instance_valid(player) and _owner.has(player) and _owner[player].token_of(player) == token
+
+
+## True if [param player]/[param token] is still active and audibly playing.
+## Backs [method AudioHandle.is_playing].
+func is_playing(player: Node, token: int) -> bool:
+	return is_active(player, token) and _is_audible(player)
+
+
+## Repositions a still-playing [param player]. Backs [method AudioHandle.move_to].
+func move(player: Node, at: Variant) -> void:
+	if _owner.has(player):
+		_owner[player].move(player, at)
+
+
+# Reads the `playing` property across the AudioStreamPlayer family.
+func _is_audible(player: Node) -> bool:
+	if player is AudioStreamPlayer:
+		return (player as AudioStreamPlayer).playing
+	if player is AudioStreamPlayer2D:
+		return (player as AudioStreamPlayer2D).playing
+	if player is AudioStreamPlayer3D:
+		return (player as AudioStreamPlayer3D).playing
+	return false
 
 func _play(stream: AudioPoolStream, at: Variant, unique: bool) -> Node:
 	if stream == null:

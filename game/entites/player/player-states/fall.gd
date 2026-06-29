@@ -2,7 +2,6 @@ class_name PlayerFall extends PlayerState
 ## FALL STATE — airborne and descending; supports coyote-time and jump-buffering.
 
 @export_category("Transitions")
-@export_subgroup("States")
 @export var move_state: FSMState
 @export var idle_state: FSMState
 @export var jump_state: FSMState
@@ -22,20 +21,20 @@ func process_frame(delta: float) -> FSMState:
 	return null
 
 func process_input(_event: InputEvent) -> FSMState:
-	if move_stats.multi_jump and jump.can_jump() and not player.is_on_floor() and not player.is_on_wall():
+	if move_stats.multi_jump and motion.can_jump() and not player.is_on_floor() and not player.is_on_wall():
 		if get_jump_input():
 			return jump_state
 	if check_dash_conditions():
 		return dash_state
-	if get_jump_input() and _coyote_timer > 0.0:
+	if motion.can_jump() and get_jump_input() and _coyote_timer > 0.0:
 		return jump_state
 	if get_jump_input():
 		_jump_buffer_timer = move_stats.jump_buffer_time
 	return null
 
 func process_physics(_delta: float) -> FSMState:
-	walk.direction = input.input_horizontal
-	gravity.fast_fall = get_fastfall_input()
+	motion.move(input.input_horizontal)
+	motion.set_fast_fall(get_fastfall_input())
 	if player.is_on_floor():
 		if _jump_buffer_timer > 0.0:
 			return jump_state

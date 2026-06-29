@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://c5cfocnqqa6nq"]
+
+[ext_resource type="Script" uid="uid://c0yjo18yoh4uk" path="res://entites/enemy/sentry-drone/scripts/sentry-drone.gd" id="1_drone"]
+[ext_resource type="Resource" uid="uid://cl15epbgotcko" path="res://entites/enemy/base_enemy_move_stats.tres" id="2_stats"]
+[ext_resource type="SpriteFrames" uid="uid://cvewq6ymj1foh" path="res://Assets/Sprites/robot.tres" id="3_frames"]
+[ext_resource type="Script" uid="uid://biyrckcem0i53" path="res://components/locomotion/locomotion_component.gd" id="4_loco"]
+[ext_resource type="Script" uid="uid://bb0t2ovl7wifo" path="res://addons/beehave/nodes/beehave_tree.gd" id="5_tree"]
+[ext_resource type="Script" uid="uid://cgkdfr1lbb1p1" path="res://entites/enemy/behavior-tree/patrol_path_action.gd" id="6_patrol"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_drone"]
+
+[node name="SentryDrone" type="CharacterBody2D" unique_id=100000001 node_paths=PackedStringArray("locomotion", "sprite")]
+scale = Vector2(1.5, 1.5)
+collision_layer = 4
+collision_mask = 35
+script = ExtResource("1_drone")
+locomotion = NodePath("Locomotion")
+sprite = NodePath("AnimatedSprite2D")
+movement_stats = ExtResource("2_stats")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=100000002]
+shape = SubResource("CapsuleShape2D_drone")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=100000003]
+sprite_frames = ExtResource("3_frames")
+animation = &"Idle"
+autoplay = "Idle"
+
+[node name="Locomotion" type="Node" parent="." unique_id=100000004]
+script = ExtResource("4_loco")
+
+[node name="BeehaveTree" type="Node" parent="." unique_id=100000006 node_paths=PackedStringArray("blackboard", "actor")]
+script = ExtResource("5_tree")
+blackboard = NodePath("@Node@228048")
+actor = NodePath("..")
+
+[node name="PatrolPathAction" type="Node" parent="BeehaveTree" unique_id=100000007]
+script = ExtResource("6_patrol")
