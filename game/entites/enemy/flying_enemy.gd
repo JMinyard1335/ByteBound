@@ -11,9 +11,8 @@ class_name FlyingEnemy extends Enemy
 var pather: Pathfinder
 
 func _ready() -> void:
-	if Engine.is_editor_hint():
-		_refresh_warnings_on_child_changes()
-		return
+	# Runs all editor only updates and then returns to avoid running game code.
+	if _update_editor(): return
 	super._ready()
 	
 	# Get the pathfinder node for the flying enemy at runtime
@@ -40,9 +39,15 @@ func _find_pather() -> Result:
 			continue
 		
 		return Result.new(true, null, child as Pathfinder)
-	
 	return Result.new(false,  ResultError.new(1, "No Pathfinder node found"))
 
+# Runs all editor only logic and returns true if the editor logic ran
+# returning true allows for early returns in the _ready
+func _update_editor() -> bool:
+	if Engine.is_editor_hint(): 
+		_refresh_warnings_on_child_changes()
+		return true
+	return false
 
 # Editor-only: connects child enters/exit tree to update_configuration_warnings
 # this is used to recheck for a [Pather] node whenever a child is added or removed
