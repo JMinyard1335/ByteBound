@@ -64,7 +64,7 @@ animation = &"Fall"
 frame_progress = 0.7283138
 
 [node name="CameraFollow" type="Camera2D" parent="." unique_id=465325154]
-zoom = Vector2(1.3, 1.3)
+zoom = Vector2(0.5, 0.5)
 position_smoothing_enabled = true
 drag_horizontal_enabled = true
 drag_vertical_enabled = true

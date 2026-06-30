@@ -19,19 +19,19 @@ radius = 29.302303
 [sub_resource type="CircleShape2D" id="CircleShape2D_el1ek"]
 radius = 53.726437
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_vimy3"]
+vertices = PackedVector2Array(264, 222, 212.10156, 146.11719, 936.10156, 154.88281, 385, 287, 940.8828, 581.97656, 388, 581.0078, 543, 433, 446, 433, 388, 414.64844, 446, 415, 214, 220, 214.89063, 420.64844, 216, 261, 542, 414, 385, 305, 287, 287, 262, 260, 287, 305)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 2), PackedInt32Array(7, 6, 5), PackedInt32Array(7, 5, 8, 9), PackedInt32Array(1, 0, 10), PackedInt32Array(11, 1, 10), PackedInt32Array(11, 10, 12), PackedInt32Array(2, 6, 13), PackedInt32Array(14, 3, 2, 13, 9, 8), PackedInt32Array(0, 3, 15, 16), PackedInt32Array(8, 11, 12, 17), PackedInt32Array(17, 14, 8), PackedInt32Array(17, 12, 16, 15)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(205, 431, 202, 136, 946, 145, 951, 592, 378, 591, 378, 425)])
+
+[sub_resource type="Resource" id="Resource_77hdb"]
+script = ExtResource("12_77hdb")
+
 [sub_resource type="Resource" id="Resource_vimy3"]
 resource_local_to_scene = true
 script = ExtResource("9_knn10")
 can_move = true
 can_idle = true
-
-[sub_resource type="NavigationPolygon" id="NavigationPolygon_vimy3"]
-vertices = PackedVector2Array(388, 414.64844, 214.89063, 420.64844, 212.10156, 146.11719, 936.10156, 154.88281, 940.8828, 581.97656, 388, 581.0078)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(0, 3, 4, 5)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(205, 431, 202, 136, 946, 145, 951, 592, 378, 591, 378, 425)])
-
-[sub_resource type="Resource" id="Resource_77hdb"]
-script = ExtResource("12_77hdb")
 
 [node name="TestWorld" unique_id=1807927384 node_paths=PackedStringArray("portals") instance=ExtResource("1_u8ja6")]
 script = ExtResource("2_2qifi")
@@ -81,16 +81,45 @@ metadata/_custom_type_script = "uid://l2j2tmqltrxe"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enviroment/HellForge/TriggerArea" index="0" unique_id=806424930]
 shape = SubResource("CircleShape2D_el1ek")
 
-[node name="Player" parent="." index="2" unique_id=1356557048]
-position = Vector2(1104, 160)
+[node name="NavRegions" type="Node" parent="Enviroment" parent_id_path=PackedInt32Array(54102886) index="2" unique_id=1594893532]
 
-[node name="SentryDrone" parent="." index="3" unique_id=100000001 instance=ExtResource("8_2qifi")]
+[node name="PathfinderRegion" type="NavigationRegion2D" parent="Enviroment/NavRegions" index="0" unique_id=763756250]
+navigation_polygon = SubResource("NavigationPolygon_vimy3")
+script = ExtResource("11_vimy3")
+distribution = SubResource("Resource_77hdb")
+debug_draw = true
+metadata/_custom_type_script = "uid://bl8mqbsobvsjn"
+
+[node name="NavigationObstacle2D" type="NavigationObstacle2D" parent="Enviroment/NavRegions/PathfinderRegion" index="0" unique_id=816869028]
+vertices = PackedVector2Array(446, 415, 446, 433, 543, 433, 542, 414)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
+[node name="NavigationObstacle2D2" type="NavigationObstacle2D" parent="Enviroment/NavRegions/PathfinderRegion" index="1" unique_id=1361360159]
+vertices = PackedVector2Array(287, 287, 287, 305, 385, 305, 385, 287)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
+[node name="NavigationObstacle2D3" type="NavigationObstacle2D" parent="Enviroment/NavRegions/PathfinderRegion" index="2" unique_id=829347791]
+vertices = PackedVector2Array(214, 220, 264, 222, 262, 260, 216, 261)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
+[node name="Player" parent="Characters" parent_id_path=PackedInt32Array(86519129) index="0" unique_id=1356557048]
+position = Vector2(338, 270)
+
+[node name="SentryDrone" parent="Characters" parent_id_path=PackedInt32Array(86519129) index="1" unique_id=100000001 instance=ExtResource("8_2qifi")]
 position = Vector2(485, 360)
 movement_stats = SubResource("Resource_vimy3")
 
-[node name="Pather" type="NavigationAgent2D" parent="SentryDrone" index="4" unique_id=199294068 node_paths=PackedStringArray("region")]
+[node name="Pather" type="NavigationAgent2D" parent="Characters/SentryDrone" index="4" unique_id=199294068 node_paths=PackedStringArray("region")]
+avoidance_enabled = true
+radius = 20.0
+time_horizon_obstacles = 1.0
 script = ExtResource("10_pather")
-region = NodePath("../../PathfinderRegion")
+region = NodePath("../../../Enviroment/NavRegions/PathfinderRegion")
+max_points = 50
+route_points = 100
 metadata/_custom_type_script = "uid://nt27jaij7yl2"
 
 [node name="PauseMenu" parent="UI" parent_id_path=PackedInt32Array(1282453702) index="0" unique_id=176249299]
@@ -98,10 +127,3 @@ layer = 20
 
 [node name="CanvasLayer" parent="UI" parent_id_path=PackedInt32Array(1282453702) index="1" unique_id=1099492851]
 layer = 10
-
-[node name="PathfinderRegion" type="NavigationRegion2D" parent="." index="5" unique_id=763756250]
-navigation_polygon = SubResource("NavigationPolygon_vimy3")
-script = ExtResource("11_vimy3")
-distribution = SubResource("Resource_77hdb")
-debug_draw = true
-metadata/_custom_type_script = "uid://bl8mqbsobvsjn"

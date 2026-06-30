@@ -25,7 +25,9 @@ tile_map_data = PackedByteArray("AAD7/woABQABAAEAAAD8/woABQABAAEAAAD9/woABQABAAE
 
 [node name="Enviroment" type="Node2D" parent="." unique_id=54102886]
 
-[node name="Player" parent="." unique_id=1356557048 instance=ExtResource("1_dpdov")]
+[node name="Characters" type="Node" parent="." unique_id=86519129]
+
+[node name="Player" parent="Characters" unique_id=1356557048 instance=ExtResource("1_dpdov")]
 position = Vector2(0, 1)
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1282453702]

@@ -1,6 +1,6 @@
 @tool
 class_name SentryDrone
-extends Enemy
+extends FlyingEnemy
 ## A floating sentry that flies straight along its patrol path.
 ##
 ## Carries a [FlyComponent] instead of walk/gravity movers, so its [LocomotionComponent] applies

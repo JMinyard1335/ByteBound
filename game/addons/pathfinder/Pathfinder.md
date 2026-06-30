@@ -1,35 +1,40 @@
 # Pathfinder Component
 
-The pathfinder component can be given to a CharacterBody2D and allows that body to uses a 
-NavigationRegion2D to allow the character body to path around the game world.
+The Pathfinder is a `NavigationAgent2D` you drop onto a body (a `Node2D`) so it can patrol
+around the game world. It carves a route over a `PathfinderRegion`, walks the body from waypoint
+to waypoint, and hands you a steering velocity each frame — it never moves the body itself, so the
+consumer decides how to apply it.
 
-This component is a tool script and looks for the required navigation nodes and emits a warning
-in the editor similar to Area2D's with out a collision shape. Since we do not care if it is a 
-Path2D or a NavigationRegion2D we simply look for a node called `PathfinderRegion` this repersents the area
-a path is created from.
+This component is a tool script and emits a warning in the editor (similar to an Area2D without a
+collision shape) when it is missing what it needs: a `PathfinderRegion` to sample from, or a
+`Node2D` parent to steer.
 
+The `PathfinderRegion` is its own `NavigationRegion2D` node somewhere in the scene. You assign it
+to the Pathfinder's `region` export in the editor — it is not a child of the Pathfinder.
 
 ```
-CharacterBody2D
- | --- NavigationAgent2D (if using NavigationRegion2D)
- | --- PathfinderComponent
-          | --- PathfinderRegion
+Node2D                     # the body being steered
+ | --- Pathfinder          # NavigationAgent2D, region export points at the region below
+ | --- LocomotionComponent # (or whatever applies the steering velocity)
+
+PathfinderRegion           # NavigationRegion2D, lives elsewhere in the scene
 ```
 
 ## API
 
-- `create_path(int)`: Carves an ordered route of up to `int` waypoints from the region's cloud,
-  stores it, and resets the cursor to the start. Returns the `PathfinderSet`.
-- `next_point()`: Advances the cursor one waypoint (per `path_type`) and returns the new current
-  point. **Mutating.**
-- `previous_point()`: Steps the cursor back one waypoint and returns the new current point.
-  **Mutating.**
-- `current_point()`: Returns the waypoint the cursor currently points at, without moving it.
-  **Non-mutating.**
-- `clear_path()`: Removes all points from the path and resets the cursor.
+- `begin()`: Carves a route from the body's current position and starts steering along it. Errors
+  out if no `region` is assigned.
+- `stop()`: Halts patrolling and tells the body to stop (emits a zero `steering` velocity).
+- `resume()`: Resumes a previously-built route without re-carving it.
+- `regenerate()`: Re-carves the route from the body's current position, keeping the running state.
+- `is_running()`: True while the agent is actively patrolling.
 
-Empty-route calls and out-of-bounds peeks return `PathfinderSet.INVALID_POINT` (`(INF, INF)`).
+Signals:
 
+- `route_built(path: PathfinderSet)`: a fresh route was carved (on `begin()`/`regenerate()`).
+- `route_advanced(point: Vector2)`: the cursor moved to a new waypoint.
+- `steering(velocity: Vector2)`: emitted every physics frame with the velocity the body should
+  apply this frame. Wire this to your movement code.
 
 ## Creating a path
 
@@ -45,35 +50,35 @@ distribution, evenly spread within the navigable area of its baked `NavigationPo
 
 Set `debug_draw` on the region to preview the cloud in the editor.
 
-The sampling itself lives in `utils/poisson_disk_sampler.gd` (`PoissonDiskSampler`) — a
-project-agnostic `RefCounted` that runs Bridson's algorithm over a `Rect2`, optionally clipped
-by a `func(p: Vector2) -> bool` predicate. The region just supplies the navigable bounds, its
-`_is_navigable` predicate, and converts the result to world space; the sampler can be reused
+The sampling itself lives in `pathfinder-sampler/poisson_disk_sampler.gd` (`PoissonDiskSampler`)
+— a project-agnostic `RefCounted` that runs Bridson's algorithm over a `Rect2`, optionally
+clipped by a `func(p: Vector2) -> bool` predicate. The region just supplies the navigable bounds,
+its `_is_navigable` predicate, and converts the result to world space; the sampler can be reused
 anywhere points are needed.
 
-The cloud is intentionally larger than a route. `PathfinderBase.create_path()` takes a random
-subset of it, then **nearest-neighbour orders** that subset into a coherent meandering route.
-Route size is bounded by the `min_points`/`max_points` exports **on the PathfinderBase** — these
-are distinct from the `PoissonSettings.min_points`/`max_points` that bound the *cloud*.
+The cloud is intentionally larger than a route. The Pathfinder owns a `PathfinderMapper` that
+takes a random subset of the cloud, then **nearest-neighbour orders** that subset into a coherent
+meandering route. Route size is bounded by the `min_points`/`max_points` exports **on the
+Pathfinder** — these are distinct from the `PoissonSettings.min_points`/`max_points` that bound
+the *cloud*.
 
 ## Traversing a path
 
-The route is **waypoints only**. `PathfinderBase` does not move the body and does not query
-navigation — it just hands out points and advances a cursor. How the body travels *between* two
-waypoints (routing around obstacles) is the consumer's job, handled by a `NavigationAgent2D` on
-the target. The agent takes **one** `target_position` at a time, so the loop is:
+The Pathfinder uses its inherited `NavigationAgent2D` to route between waypoints (around
+obstacles) and emits the per-frame velocity through the `steering` signal. It does **not** move
+the body — wire `steering` to your locomotion and apply it yourself:
 
 ```gdscript
-agent.target_position = pathfinder.current_point()
-# each physics frame:
-if agent.is_navigation_finished():
-    pathfinder.next_point()                  # advances the cursor per path_type
-    agent.target_position = pathfinder.current_point()
-else:
-    steer_body_toward(agent.get_next_path_position())
+func _ready() -> void:
+    pathfinder.steering.connect(locomotion.steer)
+    pathfinder.begin()
 ```
 
-`path_type` controls what `next_point()` does at the end of the route:
+Under the hood the route is **waypoints only**. The `PathfinderMapper` hands out points and
+advances a cursor; the Pathfinder aims the navigation agent at the current waypoint and, once it
+arrives, advances the cursor to the next one.
+
+`path_type` controls what happens at the end of the route:
 
 - `LOOP`: wrap back to the start.
 - `PONG`: reverse direction and walk back towards the start.

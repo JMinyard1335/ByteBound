@@ -49,7 +49,7 @@ project/assembly_name="ByteBound"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/audio-pool/plugin.cfg", "res://addons/beehave/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/pathfinder/plugin.cfg", "res://addons/state_machine/plugin.cfg")
+enabled=PackedStringArray("res://addons/audio-pool/plugin.cfg", "res://addons/beehave/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/pathfinder/plugin.cfg", "res://addons/result-type/plugin.cfg", "res://addons/state_machine/plugin.cfg")
 
 [file_customization]
 

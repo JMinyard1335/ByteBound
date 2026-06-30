@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ResultError" format=3 uid="uid://bp5p7yla20shs"]
+
+[ext_resource type="Script" uid="uid://bcw04kun6os7x" path="res://addons/result-type/custom-resources/return_error.gd" id="1_1bvcx"]
+
+[resource]
+script = ExtResource("1_1bvcx")
+err = 1
+msg = "An Error Occured"
+fatal = true
+metadata/_custom_type_script = "uid://bcw04kun6os7x"
