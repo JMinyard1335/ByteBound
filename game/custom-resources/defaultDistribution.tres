@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PoissonSettings" format=3]
+
+[ext_resource type="Script" uid="uid://5adte3d853q0" path="res://addons/pathfinder/pathfinder-settings/poisson_settings.gd" id="1_poisson"]
+
+[resource]
+script = ExtResource("1_poisson")
+min_distance = 48.0
+attempts = 30
+min_points = 24
+max_points = 256
+seed = -1

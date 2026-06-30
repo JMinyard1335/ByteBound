@@ -21,6 +21,7 @@ var _movers: Array[MovementComponent] = []
 # can carry any subset (e.g. a flyer with none, just sliding its own velocity).
 @onready var _gravity: GravityComponent = get_node_or_null("%Gravity")
 @onready var _walk: WalkComponent = get_node_or_null("%Walk")
+@onready var _fly: FlyComponent = get_node_or_null("%Fly")
 @onready var _jump: JumpComponent = get_node_or_null("%Jump")
 @onready var _dash: DashComponent = get_node_or_null("%Dash")
 
@@ -53,10 +54,22 @@ func move(direction: float) -> void:
 		_walk.direction = direction
 
 
+## Steers the body with a desired world velocity (from a [Pathfinder] or other AI).[br]
+## Walkers consume only the x-direction (gravity owns y); flyers apply the full vector. The
+## body type is inferred from which movers are present, so the caller stays type-agnostic.
+func steer(velocity: Vector2) -> void:
+	if _walk:
+		_walk.direction = signf(velocity.x)
+	if _fly:
+		_fly.velocity = velocity
+
+
 ## Stops horizontal movement now: clears intent and zeroes current x velocity.
 func stop() -> void:
 	if _walk:
 		_walk.direction = 0.0
+	if _fly:
+		_fly.velocity = Vector2.ZERO
 	body.velocity.x = 0.0
 
 

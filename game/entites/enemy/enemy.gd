@@ -3,86 +3,49 @@ class_name Enemy
 extends BaseCharacter
 ## Shared base for every AI enemy.
 ##
-## Every enemy requires a child [Path2D] that describes its patrol route. The
-## curve's points are captured into fixed world-space waypoints at spawn (the
-## path itself rides along with the body, so it can't be followed live). A
-## [PatrolPathAction] in the child [BeehaveTree] walks the body between those
-## waypoints by calling the patrol seam below.
-##
-## The base seam ([method patrol_steer_to], [method patrol_has_reached],
-## [method patrol_stop]) drives a ground walker through its [LocomotionComponent].
-## Flying enemies ([SentryDrone]) override it to move freely in 2D.
+## Patrol is driven by a [Pathfinder] added as a direct child [b]per level[/b] — so its
+## [member Pathfinder.region] can be set in the editor without toggling "editable children" on the
+## enemy instance. The enemy warns until one is present, resolves it at runtime, and wires its
+## steering into the [LocomotionComponent].
 
 ## Owns the body's movement and is its sole mover/slider. Controllers (the
 ## behavior tree) set intent through this component, never sliding the body.
 @export var locomotion: LocomotionComponent
 
-## The patrol route, captured from the child [Path2D] at spawn. World space.
-var patrol_waypoints: PackedVector2Array = PackedVector2Array()
-
-var _patrol_path: Path2D
+## This enemy's patrol agent; resolved from a child [Pathfinder] at runtime.
+var pather: Pathfinder
 
 #region Engine Methods
 func _ready() -> void:
 	if Engine.is_editor_hint():
+		_refresh_warnings_on_child_changes()
 		return
 	super._ready()
-	assert(locomotion, "Enemy: locomotion (LocomotionComponent) not set")
-	_patrol_path = _find_patrol_path()
-	assert(_patrol_path, "Enemy: a child Path2D is required to define the patrol route")
-	_capture_waypoints()
+	assert(locomotion, "Enemy: locomotion (LocomotionComponent) is not set")
+	pather = _find_pather()
+	assert(pather, "Enemy: add a Pathfinder child node so this enemy can patrol")
+	pather.steering.connect(locomotion.steer)
 
 
 func _get_configuration_warnings() -> PackedStringArray:
-	var warnings: PackedStringArray = []
-	var path: Path2D = _find_patrol_path()
-	if path == null:
-		warnings.append("An enemy needs a child Path2D to define its patrol route.")
-	elif path.curve == null or path.curve.point_count < 2:
-		warnings.append("The patrol Path2D needs at least 2 points.")
+	var warnings: PackedStringArray = PackedStringArray()
+	if _find_pather() == null:
+		warnings.append("Add a Pathfinder child node (and set its Region) so this enemy can patrol.")
 	return warnings
 #endregion
 
-#region Public API
-## The patrol route in world space, captured from the child [Path2D] at spawn.
-func get_patrol_waypoints() -> PackedVector2Array:
-	return patrol_waypoints
-
-
-## Drives one frame of movement toward [param target] (world space). The base
-## walks horizontally toward the target's x; flyers override for full 2D motion.
-func patrol_steer_to(target: Vector2) -> void:
-	var direction: float = signf(target.x - global_position.x)
-	if direction != 0.0:
-		dir = int(direction)
-	locomotion.move(direction)
-
-
-## True when [param target] is within [param tol] of this enemy. The base uses
-## horizontal distance (gravity handles the vertical); flyers override for 2D.
-func patrol_has_reached(target: Vector2, tol: float) -> bool:
-	return absf(target.x - global_position.x) <= tol
-
-
-## Cancels this frame's patrol movement intent.
-func patrol_stop() -> void:
-	locomotion.stop()
-#endregion
-
 #region Private Helpers
-func _find_patrol_path() -> Path2D:
-	for child in get_children():
-		if child is Path2D:
-			return child as Path2D
+## The first child [Pathfinder], or [code]null[/code] when none is present.
+func _find_pather() -> Pathfinder:
+	for child: Node in get_children():
+		if child is Pathfinder:
+			return child as Pathfinder
 	return null
 
 
-func _capture_waypoints() -> void:
-	patrol_waypoints = PackedVector2Array()
-	var curve: Curve2D = _patrol_path.curve
-	if curve == null or curve.point_count == 0:
-		push_warning("%s: patrol Path2D has no points." % name)
-		return
-	for i in range(curve.point_count):
-		patrol_waypoints.append(_patrol_path.to_global(curve.get_point_position(i)))
+## Editor-only: keep the missing-Pathfinder warning live as children are added/removed.
+func _refresh_warnings_on_child_changes() -> void:
+	var refresh: Callable = func(_node: Node) -> void: update_configuration_warnings()
+	child_entered_tree.connect(refresh)
+	child_exiting_tree.connect(refresh)
 #endregion

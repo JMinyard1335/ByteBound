@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://cl6qictcetvtj" path="res://entites/portals/Portal.tscn" id="7_sfao0"]
 [ext_resource type="PackedScene" uid="uid://c5cfocnqqa6nq" path="res://entites/enemy/sentry-drone/sentry-drone.tscn" id="8_2qifi"]
 [ext_resource type="Script" uid="uid://krgx50cxctd0" path="res://custom-resources/move_stats.gd" id="9_knn10"]
+[ext_resource type="Script" uid="uid://nt27jaij7yl2" path="res://addons/pathfinder/pathfinder-pather/pathfinder.gd" id="10_pather"]
+[ext_resource type="Script" uid="uid://bl8mqbsobvsjn" path="res://addons/pathfinder/pathfinder-region/pathfinder_region.gd" id="11_vimy3"]
+[ext_resource type="Script" uid="uid://5adte3d853q0" path="res://addons/pathfinder/pathfinder-settings/poisson_settings.gd" id="12_77hdb"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_2qifi"]
 radius = 29.302303
@@ -16,17 +19,19 @@ radius = 29.302303
 [sub_resource type="CircleShape2D" id="CircleShape2D_el1ek"]
 radius = 53.726437
 
-[sub_resource type="Resource" id="Resource_yt3lm"]
+[sub_resource type="Resource" id="Resource_vimy3"]
 resource_local_to_scene = true
 script = ExtResource("9_knn10")
 can_move = true
 can_idle = true
 
-[sub_resource type="Curve2D" id="Curve2D_2qifi"]
-_data = {
-"points": PackedVector2Array(0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 130, 2.6666718, 0, 0, 0, 0, 178, 72, 0, 0, 0, 0, 136.66666, 29.333344, 0, 0, 0, 0, 80, 49.333344, 0, 0, 0, 0, 68, 106.66669, 0, 0, 0, 0, 144.66666, 122.66669, 0, 0, 0, 0, 110.66666, 82, 0, 0, 0, 0, 4.6666565, 73.33334, 0, 0, 0, 0, -48, 146.66669, 0, 0, 0, 0, -15.3333435, 44.666687)
-}
-point_count = 11
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_vimy3"]
+vertices = PackedVector2Array(388, 414.64844, 214.89063, 420.64844, 212.10156, 146.11719, 936.10156, 154.88281, 940.8828, 581.97656, 388, 581.0078)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(0, 3, 4, 5)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(205, 431, 202, 136, 946, 145, 951, 592, 378, 591, 378, 425)])
+
+[sub_resource type="Resource" id="Resource_77hdb"]
+script = ExtResource("12_77hdb")
 
 [node name="TestWorld" unique_id=1807927384 node_paths=PackedStringArray("portals") instance=ExtResource("1_u8ja6")]
 script = ExtResource("2_2qifi")
@@ -45,7 +50,7 @@ tile_map_data = PackedByteArray("AAAAAAoABwAFAAgAAAABAAoABwAFAAgAAAACAAoABwAFAAg
 tile_set = ExtResource("4_fa8yw")
 
 [node name="CityLab" parent="Enviroment" parent_id_path=PackedInt32Array(54102886) index="0" unique_id=611457301 instance=ExtResource("7_sfao0")]
-position = Vector2(229, 558.00006)
+position = Vector2(230, 575)
 scale = Vector2(3.5, 3.5)
 portal_id = &"CityLab"
 to_portal = &"HellForge"
@@ -79,15 +84,24 @@ shape = SubResource("CircleShape2D_el1ek")
 [node name="Player" parent="." index="2" unique_id=1356557048]
 position = Vector2(1104, 160)
 
+[node name="SentryDrone" parent="." index="3" unique_id=100000001 instance=ExtResource("8_2qifi")]
+position = Vector2(485, 360)
+movement_stats = SubResource("Resource_vimy3")
+
+[node name="Pather" type="NavigationAgent2D" parent="SentryDrone" index="4" unique_id=199294068 node_paths=PackedStringArray("region")]
+script = ExtResource("10_pather")
+region = NodePath("../../PathfinderRegion")
+metadata/_custom_type_script = "uid://nt27jaij7yl2"
+
 [node name="PauseMenu" parent="UI" parent_id_path=PackedInt32Array(1282453702) index="0" unique_id=176249299]
 layer = 20
 
 [node name="CanvasLayer" parent="UI" parent_id_path=PackedInt32Array(1282453702) index="1" unique_id=1099492851]
 layer = 10
 
-[node name="SentryDrone" parent="." index="4" unique_id=100000001 instance=ExtResource("8_2qifi")]
-position = Vector2(485, 360)
-movement_stats = SubResource("Resource_yt3lm")
-
-[node name="Path2D" type="Path2D" parent="SentryDrone" index="4" unique_id=426586661]
-curve = SubResource("Curve2D_2qifi")
+[node name="PathfinderRegion" type="NavigationRegion2D" parent="." index="5" unique_id=763756250]
+navigation_polygon = SubResource("NavigationPolygon_vimy3")
+script = ExtResource("11_vimy3")
+distribution = SubResource("Resource_77hdb")
+debug_draw = true
+metadata/_custom_type_script = "uid://bl8mqbsobvsjn"
